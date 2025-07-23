@@ -3,7 +3,7 @@ let config = {
     logoWidth: 35,
     logoHeight: 35,
     hitboxSize: 35, // Hitbox cuadrada
-    speed: 0.25
+    speed: 0.85
 };
 
 // Variables de animación
