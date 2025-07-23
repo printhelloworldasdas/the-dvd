@@ -1,116 +1,166 @@
-// Configuración
-let config = {
-    logoWidth: 0.25,
-    logoHeight: 0.25,
-    hitboxSize: 0.25, // Hitbox cuadrada
-    speed: 1.80
+// Configuración inicial
+const defaultConfig = {
+    logoWidth: 150,
+    logoHeight: 150,
+    hitboxSize: 150,
+    speed: 5,
+    imageUrl: 'dvd-logo.png'
 };
 
-// Variables de animación
-let posX = 0;
-let posY = 0;
-let velX = 0;
-let velY = 0;
-let dvdLogo = document.getElementById('dvd-logo');
-let container = document.getElementById('container');
+// Estado de la aplicación
+let state = {
+    config: {...defaultConfig},
+    position: {x: 0, y: 0},
+    velocity: {x: 0, y: 0},
+    elements: {
+        logo: null,
+        container: null,
+        configPanel: null,
+        inputs: {
+            logoWidth: null,
+            logoHeight: null,
+            hitboxSize: null,
+            speed: null,
+            imageUrl: null
+        },
+        buttons: {
+            save: null,
+            close: null,
+            reset: null
+        }
+    }
+};
 
-// Cargar configuración guardada
+// Inicialización
+function init() {
+    // Obtener elementos del DOM
+    state.elements.logo = document.getElementById('dvd-logo');
+    state.elements.container = document.getElementById('container');
+    state.elements.configPanel = document.getElementById('config-panel');
+    
+    // Obtener inputs
+    state.elements.inputs.logoWidth = document.getElementById('logo-width');
+    state.elements.inputs.logoHeight = document.getElementById('logo-height');
+    state.elements.inputs.hitboxSize = document.getElementById('hitbox-size');
+    state.elements.inputs.speed = document.getElementById('speed');
+    state.elements.inputs.imageUrl = document.getElementById('image-url');
+    
+    // Obtener botones
+    state.elements.buttons.save = document.getElementById('save-btn');
+    state.elements.buttons.close = document.getElementById('close-btn');
+    state.elements.buttons.reset = document.getElementById('reset-btn');
+    
+    // Cargar configuración guardada
+    loadConfig();
+    
+    // Configurar eventos
+    setupEvents();
+    
+    // Iniciar animación
+    resetPosition();
+    animate();
+}
+
+// Cargar configuración
 function loadConfig() {
     const savedConfig = localStorage.getItem('dvdBounceConfig');
     if (savedConfig) {
-        Object.assign(config, JSON.parse(savedConfig));
-        applyConfig();
+        state.config = {...defaultConfig, ...JSON.parse(savedConfig)};
     }
+    applyConfig();
 }
 
 // Guardar configuración
 function saveConfig() {
-    localStorage.setItem('dvdBounceConfig', JSON.stringify(config));
+    localStorage.setItem('dvdBounceConfig', JSON.stringify(state.config));
 }
 
-// Aplicar configuración
+// Aplicar configuración al DOM
 function applyConfig() {
-    // Tamaño del logo
-    document.documentElement.style.setProperty('--logo-width', config.logoWidth + 'px');
-    document.documentElement.style.setProperty('--logo-height', config.logoHeight + 'px');
+    // Aplicar tamaño del logo
+    document.documentElement.style.setProperty('--logo-width', state.config.logoWidth + 'px');
+    document.documentElement.style.setProperty('--logo-height', state.config.logoHeight + 'px');
+    
+    // Aplicar imagen
+    if (state.config.imageUrl) {
+        document.documentElement.style.setProperty('--logo-image', `url('${state.config.imageUrl}')`);
+    }
     
     // Actualizar controles
-    document.getElementById('logo-width').value = config.logoWidth;
-    document.getElementById('logo-height').value = config.logoHeight;
-    document.getElementById('hitbox-size').value = config.hitboxSize;
-    document.getElementById('speed').value = config.speed;
+    state.elements.inputs.logoWidth.value = state.config.logoWidth;
+    state.elements.inputs.logoHeight.value = state.config.logoHeight;
+    state.elements.inputs.hitboxSize.value = state.config.hitboxSize;
+    state.elements.inputs.speed.value = state.config.speed;
+    state.elements.inputs.imageUrl.value = state.config.imageUrl || '';
 }
 
-// Inicializar
-function init() {
-    loadConfig();
-    
-    // Posición y velocidad inicial aleatoria
-    resetPosition();
-    
-    // Iniciar animación
-    animate();
-    
-    // Mostrar/ocultar panel con Ctrl+C
+// Configurar eventos
+function setupEvents() {
+    // Mostrar/ocultar panel de configuración
     document.addEventListener('keydown', (e) => {
         if (e.key === 'c' && e.ctrlKey) {
-            document.getElementById('config-panel').classList.toggle('show');
+            state.elements.configPanel.classList.toggle('show');
         }
     });
     
     // Botón Guardar
-    document.getElementById('save-btn').addEventListener('click', () => {
-        config.logoWidth = parseInt(document.getElementById('logo-width').value) || 150;
-        config.logoHeight = parseInt(document.getElementById('logo-height').value) || 150;
-        config.hitboxSize = parseInt(document.getElementById('hitbox-size').value) || 150;
-        config.speed = parseInt(document.getElementById('speed').value) || 5;
+    state.elements.buttons.save.addEventListener('click', () => {
+        state.config = {
+            logoWidth: Math.max(1, parseInt(state.elements.inputs.logoWidth.value) || defaultConfig.logoWidth),
+            logoHeight: Math.max(1, parseInt(state.elements.inputs.logoHeight.value) || defaultConfig.logoHeight),
+            hitboxSize: Math.max(1, parseInt(state.elements.inputs.hitboxSize.value) || defaultConfig.hitboxSize),
+            speed: Math.max(0.1, parseFloat(state.elements.inputs.speed.value) || defaultConfig.speed),
+            imageUrl: state.elements.inputs.imageUrl.value.trim() || defaultConfig.imageUrl
+        };
         
         applyConfig();
         saveConfig();
         
         // Ajustar velocidad manteniendo la dirección
-        velX = (velX > 0 ? 1 : -1) * config.speed;
-        velY = (velY > 0 ? 1 : -1) * config.speed;
+        state.velocity.x = (state.velocity.x > 0 ? 1 : -1) * state.config.speed;
+        state.velocity.y = (state.velocity.y > 0 ? 1 : -1) * state.config.speed;
     });
     
     // Botón Cerrar
-    document.getElementById('close-btn').addEventListener('click', () => {
-        document.getElementById('config-panel').classList.remove('show');
+    state.elements.buttons.close.addEventListener('click', () => {
+        state.elements.configPanel.classList.remove('show');
     });
     
     // Botón Reiniciar
-    document.getElementById('reset-btn').addEventListener('click', () => {
-        resetPosition();
-    });
+    state.elements.buttons.reset.addEventListener('click', resetPosition);
 }
 
 // Reiniciar posición
 function resetPosition() {
-    posX = Math.random() * (container.clientWidth - config.hitboxSize);
-    posY = Math.random() * (container.clientHeight - config.hitboxSize);
+    state.position = {
+        x: Math.random() * (state.elements.container.clientWidth - state.config.hitboxSize),
+        y: Math.random() * (state.elements.container.clientHeight - state.config.hitboxSize)
+    };
     
-    velX = (Math.random() > 0.5 ? 1 : -1) * config.speed;
-    velY = (Math.random() > 0.5 ? 1 : -1) * config.speed;
+    state.velocity = {
+        x: (Math.random() > 0.5 ? 1 : -1) * state.config.speed,
+        y: (Math.random() > 0.5 ? 1 : -1) * state.config.speed
+    };
 }
 
 // Bucle de animación
 function animate() {
     // Actualizar posición
-    posX += velX;
-    posY += velY;
+    state.position.x += state.velocity.x;
+    state.position.y += state.velocity.y;
     
-    // Detección de colisiones con hitbox cuadrada
-    if (posX + config.hitboxSize > container.clientWidth || posX < 0) {
-        velX = -velX;
+    // Detección de colisiones
+    if (state.position.x + state.config.hitboxSize > state.elements.container.clientWidth || state.position.x < 0) {
+        state.velocity.x = -state.velocity.x;
     }
     
-    if (posY + config.hitboxSize > container.clientHeight || posY < 0) {
-        velY = -velY;
+    if (state.position.y + state.config.hitboxSize > state.elements.container.clientHeight || state.position.y < 0) {
+        state.velocity.y = -state.velocity.y;
     }
     
     // Aplicar posición
-    dvdLogo.style.left = posX + 'px';
-    dvdLogo.style.top = posY + 'px';
+    state.elements.logo.style.left = state.position.x + 'px';
+    state.elements.logo.style.top = state.position.y + 'px';
     
     // Continuar animación
     requestAnimationFrame(animate);
