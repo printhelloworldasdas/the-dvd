@@ -1,9 +1,9 @@
 // Configuración
 let config = {
-    logoWidth: 35,
-    logoHeight: 35,
+    logoWidth: 15,
+    logoHeight: 15,
     hitboxSize: 35, // Hitbox cuadrada
-    speed: 0.85
+    speed: 1.25
 };
 
 // Variables de animación
