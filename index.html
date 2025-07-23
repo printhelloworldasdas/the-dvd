@@ -15,25 +15,32 @@
         <h3>Configuración DVD</h3>
         
         <div class="config-group">
+            <h4>Imagen</h4>
+            <input type="text" id="image-url" placeholder="URL de la imagen" style="width: 100%;">
+            <small>Pega la URL de tu imagen (debe ser accesible públicamente)</small>
+        </div>
+        
+        <div class="config-group">
             <h4>Tamaño del Logo</h4>
             <div>
-                <label>Ancho: <input type="number" id="logo-width" value="150"> px</label>
+                <label>Ancho: <input type="number" id="logo-width"> px</label>
             </div>
             <div>
-                <label>Alto: <input type="number" id="logo-height" value="150"> px</label>
+                <label>Alto: <input type="number" id="logo-height"> px</label>
             </div>
         </div>
         
         <div class="config-group">
             <h4>Tamaño Hitbox (cuadrado)</h4>
             <div>
-                <label>Tamaño: <input type="number" id="hitbox-size" value="150"> px</label>
+                <label>Tamaño: <input type="number" id="hitbox-size"> px</label>
             </div>
         </div>
         
         <div class="config-group">
             <h4>Velocidad</h4>
-            <input type="range" id="speed" min="1" max="10" value="5">
+            <input type="range" id="speed" min="0.1" max="20" step="0.1">
+            <div id="speed-value">5</div>
         </div>
         
         <button id="save-btn">Guardar</button>
@@ -47,4 +54,4 @@
     
     <script src="script.js"></script>
 </body>
-                  </html>
+</html>
