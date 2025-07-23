@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVD Bounce con Imagen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container">
+        <div id="dvd-logo"></div>
+    </div>
+    
+    <div id="config-panel">
+        <h3>Configuración DVD</h3>
+        
+        <div class="config-group">
+            <h4>Tamaño del Logo</h4>
+            <div>
+                <label>Ancho: <input type="number" id="logo-width" value="150"> px</label>
+            </div>
+            <div>
+                <label>Alto: <input type="number" id="logo-height" value="150"> px</label>
+            </div>
+        </div>
+        
+        <div class="config-group">
+            <h4>Tamaño Hitbox (cuadrado)</h4>
+            <div>
+                <label>Tamaño: <input type="number" id="hitbox-size" value="150"> px</label>
+            </div>
+        </div>
+        
+        <div class="config-group">
+            <h4>Velocidad</h4>
+            <input type="range" id="speed" min="1" max="10" value="5">
+        </div>
+        
+        <button id="save-btn">Guardar</button>
+        <button id="close-btn">Cerrar</button>
+        <button id="reset-btn">Reiniciar Posición</button>
+        
+        <div class="config-group">
+            <small>Presiona Ctrl+C para mostrar/ocultar este panel</small>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+                  </html>
